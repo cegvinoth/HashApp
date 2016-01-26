@@ -2,6 +2,8 @@ from yowsup.layers.interface                           import YowInterfaceLayer,
 from yowsup.layers.protocol_messages.protocolentities  import TextMessageProtocolEntity
 from yowsup.layers.protocol_receipts.protocolentities  import OutgoingReceiptProtocolEntity
 from yowsup.layers.protocol_acks.protocolentities      import OutgoingAckProtocolEntity
+from Crawl_score import getscore
+import datetime
 
 
 
@@ -13,13 +15,18 @@ class EchoLayer(YowInterfaceLayer):
 
         if True:
             receipt = OutgoingReceiptProtocolEntity(messageProtocolEntity.getId(), messageProtocolEntity.getFrom(), 'read', messageProtocolEntity.getParticipant())
-
-            outgoingMessageProtocolEntity = TextMessageProtocolEntity(
-                messageProtocolEntity.getBody(),
-                to = messageProtocolEntity.getFrom())
-
             self.toLower(receipt)
-            self.toLower(outgoingMessageProtocolEntity)
+            fileobject=open("DataDump.txt","a")
+            fileobject.write(str(datetime.datetime.now()))
+            fileobject.write(" "+messageProtocolEntity.getBody())
+            fileobject.write(" "+messageProtocolEntity.getFrom())
+            fileobject.write("\n")
+            fileobject.close()
+            if messageProtocolEntity.getBody() == "#score" :
+              SMS = getscore()
+              for sms in SMS:
+                outgoingMessageProtocolEntity = TextMessageProtocolEntity(sms,to = messageProtocolEntity.getFrom())
+                self.toLower(outgoingMessageProtocolEntity)
 
     @ProtocolEntityCallback("receipt")
     def onReceipt(self, entity):
